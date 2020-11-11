@@ -1,10 +1,11 @@
 {
   "name": "blastronauts",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "a dumb little PvP space shooter",
+  "main": "lib/server/index.js",
   "scripts": {
-    "test": "test"
+    "start": "node lib/server/index.js",
+    "test": "nodemon lib/server/index.js"
   },
   "repository": {
     "type": "git",
@@ -16,7 +17,15 @@
     "url": "https://github.com/averywald/blastronauts/issues"
   },
   "homepage": "https://github.com/averywald/blastronauts#readme",
-  "devDependencies": {
-    "express": "^4.17.1"
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "helmet": "^4.2.0",
+    "matter-js": "^0.14.2",
+    "mongodb": "^3.6.3",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.6",
+    "socket.io": "^3.0.1"
   }
 }
