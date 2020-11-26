@@ -12,24 +12,22 @@ export class MatterService {
   private Render = Matter.Render;
   private World = Matter.World;
 
-  private engine;
+  private engine = this.Engine.create();
   private renderer;
 
   constructor() {
 
-    this.engine = this.Engine.create();
+    this.engine.world.gravity.y = 0; // remove gravity
+
     this.renderer = this.Render.create({
       element: document.body,
       engine: this.engine
     });
 
-    // create two boxes and a ground
-    var boxA = this.Bodies.rectangle(400, 200, 80, 80);
-    var boxB = this.Bodies.rectangle(450, 50, 80, 80);
-    var ground = this.Bodies.rectangle(400, 610, 810, 60, { isStatic: true });
+    var player = this.Bodies.polygon(300, 300, 3, 15); // needs to be changed to show the front
 
     // add all of the bodies to the world
-    this.addBodies([boxA, boxB, ground]);
+    this.addBodies([player]);
 
   }
 
@@ -40,6 +38,10 @@ export class MatterService {
    */
   private addBodies(bodies: object[]): void {
     this.World.add(this.engine.world, bodies);
+  }
+
+  private applyForce(): void {
+    // Matter.Body.applyForce(body, position, force)
   }
 
   /**
@@ -53,6 +55,34 @@ export class MatterService {
 
     // run the renderer
     this.Render.run(this.renderer);
+  }
+
+  /**
+   * public wrapper that interfaces with component
+   * to handle player body movment
+   * @param event KeyboardEvent that determines the
+   * forces applied to player's body
+   */
+  handleInput(event: KeyboardEvent): void {
+
+    switch (event.key) {
+      case 'w':
+        console.log(this.World);
+        // Matter.Body.applyForce();
+        break;
+      case 'a':
+        console.log('a !!!!');
+        break;
+      case 's':
+        console.log('s !!!!');
+        break;
+      case 'd':
+        console.log('d !!!!');
+        break;
+      default:
+        break; // do nothing if not WASD / Spacebar
+    }
+
   }
 
 }

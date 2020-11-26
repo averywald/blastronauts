@@ -9,9 +9,12 @@ import { MatterService } from '../services/matter.service';
 export class BlackHoleComponent implements OnInit {
 
   constructor(private matterService: MatterService) {
-    this.matterService.run();
+    this.matterService.run(); // run the matter engine
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    // works in ngOnInit() without browser window focus?
+    addEventListener('keypress', this.matterService.handleInput);
+  }
 
 }
