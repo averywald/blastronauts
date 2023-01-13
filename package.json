@@ -4,8 +4,10 @@
   "description": "a dumb little PvP space shooter",
   "main": "lib/server/index.js",
   "scripts": {
-    "start": "node lib/server/index.js",
-    "test": "nodemon lib/server/index.js"
+    "server": "node lib/server/index.js",
+    "server:test": "nodemon lib/server/index.js",
+    "client:test": "npm run start --prefix ./lib/blastronauts",
+    "test": "npm run server:test && npm run client:test"
   },
   "repository": {
     "type": "git",
