@@ -105,8 +105,6 @@ export class MatterService {
    * @todo handle spacebar - shoot
    */
   handleInput(event: KeyboardEvent): void {
-    console.log(this);
-
     switch (event.key) {
       case 'w':
         this.thrust();
