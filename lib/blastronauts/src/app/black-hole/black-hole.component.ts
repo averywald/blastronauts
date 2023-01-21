@@ -7,10 +7,10 @@ import { MatterService } from '../services/matter.service';
   styleUrls: ['./black-hole.component.sass'],
   providers: [MatterService]
 })
+/**
+ * @todo handle viewport resizing; translate to MatterService world bounds
+ */
 export class BlackHoleComponent implements OnInit {
-
-  // private matterService: MatterService = new MatterService();
-
   /**
    * perform DI service(s) setup
    * 
@@ -18,7 +18,7 @@ export class BlackHoleComponent implements OnInit {
    * handles rendering data sent to and from backend
    */
   constructor(private matterService: MatterService) {
-    this.matterService.run(); // run the matter engine
+    this.matterService.run(window.innerWidth, window.innerHeight); // run the matter engine
   }
 
   /**

@@ -8,6 +8,7 @@ import { Player } from '../models/player';
  * @todo should Matter.Engine be here, not singleton?
  * @todo implement deleteBody(entityId: <tbd>)
  * @todo implement ServiceWorker interface?
+ * @todo world runoff should come out the other side
  */
 @Injectable()
 export class MatterService {
@@ -17,25 +18,34 @@ export class MatterService {
   private clientEntity: Player;
 
   /**
-   * @todo handle "this" scope binding for all EventListener callbacks
+   * handle "this" scope binding for all EventListener callbacks
    */
   constructor() {
     this.handleInput = this.handleInput.bind(this);
   }
 
   /**
+   * @param width the width to create the Matter world
+   * @param height the height to create the Matter world
+   * 
    * @todo give method params to hook up client to master world copy
    */
-  private init(): void {
-    this.engine = Matter.Engine.create();
+  private init(width: number, height: number): void {
+    this.engine = Matter.Engine.create(); // init the physics engine instance
     this.engine.world.gravity.y = 0; // remove gravity
 
+    // init the renderer to run the engine in-browser
     this.renderer = Matter.Render.create({
       element: document.body,
-      engine: this.engine
+      engine: this.engine,
+      options: {
+        width: width,
+        height: height
+      }
     });
 
-    this.clientEntity = new Player(1);
+    // create a player to render in the world
+    this.clientEntity = new Player(1, this.engine.world);
 
     // add all of the bodies to the world
     // todo: gotta retrieve all other players in game
@@ -45,18 +55,18 @@ export class MatterService {
   /**
    * runs the physics engine in the client's web page;
    * called by component 'BlackHole', ie. the game's UI
+   * 
+   * @param width the width to create the Matter world
+   * @param height the height to create the Matter world
+   * 
+   * @todo: provide world bounds from BlackHoleComponent
    */
-  run(): void {
-    this.init();
-
-    // run the engine
-    Matter.Engine.run(this.engine);
-
-    // run the renderer
-    Matter.Render.run(this.renderer);
+  run(width: number, height: number): void {
+    this.init(width, height); // set up the Matter world, engine
+    Matter.Engine.run(this.engine); // run the engine
+    Matter.Render.run(this.renderer); // run the renderer
   }
 
-  // #region: server interfacing
   /**
    * @todo obfuscate API endpoint routes
    * @todo POST ajax
@@ -74,10 +84,6 @@ export class MatterService {
       .then(payload => payload.id);
   }
 
-  // most other actions will need clientEntity ID
-
-  // #endregion server interfacing
-
   /**
    * @param bodies array of entities
    * to add to the world; kept generic
@@ -86,12 +92,19 @@ export class MatterService {
    * @todo get bodies from the server
    */
   private addBodies(bodies: IEntity[]): void {
-    bodies.forEach(body => Matter.World.add(this.engine.world, body.body));
+    bodies.forEach(body => Matter.Composite.add(this.engine.world, body.body));
   }
 
-  thrust(): void {
-    console.log(this.clientEntity);
-    // Matter.Body.applyForce(this.clientEntity.body, this.clientEntity.position, 1);
+  private thrust(): void {
+    let force = 0.0005;
+
+    let vector = {
+      x: Math.cos(this.clientEntity.body.angle) * force,
+      y: Math.sin(this.clientEntity.body.angle) * force
+    };
+
+    Matter.Body.applyForce(
+      this.clientEntity.body, this.clientEntity.position, vector);
   }
 
   /**
