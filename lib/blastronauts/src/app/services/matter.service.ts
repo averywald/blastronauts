@@ -3,22 +3,27 @@ import * as Matter from 'matter-js';
 import { IEntity } from '../models/entity.interface';
 import { Player } from '../models/player';
 
-@Injectable({
-  providedIn: 'root'
-})
 /**
  * @todo get world from server
  * @todo should Matter.Engine be here, not singleton?
+ * @todo implement deleteBody(entityId: <tbd>)
+ * @todo implement ServiceWorker interface?
  */
+@Injectable()
 export class MatterService {
 
   private engine: Matter.Engine;
   private renderer: Matter.Render;
   private clientEntity: Player;
 
-  constructor() {}
+  /**
+   * @todo handle "this" scope binding for all EventListener callbacks
+   */
+  constructor() {
+    this.handleInput = this.handleInput.bind(this);
+  }
 
-    /**
+  /**
    * @todo give method params to hook up client to master world copy
    */
   private init(): void {
@@ -51,7 +56,7 @@ export class MatterService {
     Matter.Render.run(this.renderer);
   }
 
-  //#region: server interfacing
+  // #region: server interfacing
   /**
    * @todo obfuscate API endpoint routes
    * @todo POST ajax
@@ -71,12 +76,12 @@ export class MatterService {
 
   // most other actions will need clientEntity ID
 
-  //#endregion server interfacing
+  // #endregion server interfacing
 
   /**
    * @param bodies array of entities
    * to add to the world; kept generic
-   * so any thing can be added
+   * so any entity can be added
    * 
    * @todo get bodies from the server
    */
@@ -84,7 +89,7 @@ export class MatterService {
     bodies.forEach(body => Matter.World.add(this.engine.world, body.body));
   }
 
-  private thrust(): void {
+  thrust(): void {
     console.log(this.clientEntity);
     // Matter.Body.applyForce(this.clientEntity.body, this.clientEntity.position, 1);
   }
@@ -92,12 +97,16 @@ export class MatterService {
   /**
    * public wrapper that interfaces with component
    * to handle player body movment
+   * 
    * @param event KeyboardEvent that determines the
-   * forces applied to player's body
+   * force vector applied to player's body
    * 
    * @todo implement message return type for socket.io msg
+   * @todo handle spacebar - shoot
    */
   handleInput(event: KeyboardEvent): void {
+    console.log(this);
+
     switch (event.key) {
       case 'w':
         this.thrust();

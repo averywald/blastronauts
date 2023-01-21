@@ -15,7 +15,6 @@ import { MatterService } from './services/matter.service';
     BrowserModule,
     AppRoutingModule
   ],
-  providers: [MatterService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
