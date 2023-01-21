@@ -3,13 +3,9 @@ import { IEntity, PositionCoordinatePair } from "./entity.interface";
 
 export class Player implements IEntity {
 
-    public id: number; // todo: assign IDs from API/DB?
+    id: number; // todo: assign IDs from API/DB?
     body: Matter.Body;
     // todo: how to handle dynamically?
-    position: PositionCoordinatePair = {
-        x: 100,
-        y: 100
-    }
 
     health: number = 100;
     ammo: {} = {
@@ -19,7 +15,11 @@ export class Player implements IEntity {
 
     constructor(id: number) {
         this.id = id;
-        this.body = Matter.Bodies.polygon(this.position.x, this.position.y, 3, 15); // needs to be changed to show the front;
+        this.body = Matter.Bodies.polygon(100, 100, 3, 15); // needs to be changed to show the front;
+    }
+
+    public get position(): PositionCoordinatePair {
+        return this.body.position;
     }
 
     // todo: define action methods?

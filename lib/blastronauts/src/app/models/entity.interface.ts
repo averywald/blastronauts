@@ -8,5 +8,4 @@ export class PositionCoordinatePair {
 export interface IEntity {
     id: number;
     body: Matter.Body;
-    position: PositionCoordinatePair;
 }

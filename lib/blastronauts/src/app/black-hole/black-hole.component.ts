@@ -8,6 +8,8 @@ import { MatterService } from '../services/matter.service';
 })
 export class BlackHoleComponent implements OnInit {
 
+  // private matterService: MatterService = new MatterService();
+
   constructor(private matterService: MatterService) {
     this.matterService.run(); // run the matter engine
   }

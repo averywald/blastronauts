@@ -6,17 +6,22 @@ import { Player } from '../models/player';
 @Injectable({
   providedIn: 'root'
 })
+/**
+ * @todo get world from server
+ * @todo should Matter.Engine be here, not singleton?
+ */
 export class MatterService {
-
-  // todo: get world from server
-    // is engine supposed to be shared?
 
   private engine: Matter.Engine;
   private renderer: Matter.Render;
-
   private clientEntity: Player;
 
-  constructor() {
+  constructor() {}
+
+    /**
+   * @todo give method params to hook up client to master world copy
+   */
+  private init(): void {
     this.engine = Matter.Engine.create();
     this.engine.world.gravity.y = 0; // remove gravity
 
@@ -32,13 +37,28 @@ export class MatterService {
     this.addBodies([this.clientEntity]);
   }
 
+  /**
+   * runs the physics engine in the client's web page;
+   * called by component 'BlackHole', ie. the game's UI
+   */
+  run(): void {
+    this.init();
+
+    // run the engine
+    Matter.Engine.run(this.engine);
+
+    // run the renderer
+    Matter.Render.run(this.renderer);
+  }
+
   //#region: server interfacing
   /**
    * @todo obfuscate API endpoint routes
+   * @todo POST ajax
    */
   async registerNewPlayer(): Promise<number> {
     // get an id from the server
-    return await fetch('localhost:8080/api/registerNewPlayer')
+    return await fetch('/api/assignSessionId')
       .then(response => {
         if (!response.ok) {
           throw new Error(response.statusText);
@@ -55,7 +75,8 @@ export class MatterService {
 
   /**
    * @param bodies array of entities
-   * to add to the world
+   * to add to the world; kept generic
+   * so any thing can be added
    * 
    * @todo get bodies from the server
    */
@@ -63,21 +84,9 @@ export class MatterService {
     bodies.forEach(body => Matter.World.add(this.engine.world, body.body));
   }
 
-  private applyForce(): void {
-    // Matter.Body.applyForce(body, position, force)
-  }
-
-  /**
-   * runs the physics engine in the client's web page
-   *
-   * called by component 'BlackHole', ie. the game's UI
-   */
-  run(): void {
-    // run the engine
-    Matter.Engine.run(this.engine);
-
-    // run the renderer
-    Matter.Render.run(this.renderer);
+  private thrust(): void {
+    console.log(this.clientEntity);
+    // Matter.Body.applyForce(this.clientEntity.body, this.clientEntity.position, 1);
   }
 
   /**
@@ -85,12 +94,13 @@ export class MatterService {
    * to handle player body movment
    * @param event KeyboardEvent that determines the
    * forces applied to player's body
+   * 
+   * @todo implement message return type for socket.io msg
    */
   handleInput(event: KeyboardEvent): void {
     switch (event.key) {
-      case 'w': // thrust
-        console.log(this.clientEntity.id);
-        // Matter.Body.applyForce();
+      case 'w':
+        this.thrust();
         break;
       case 'a': // turn anti-clockwise
         console.log('a !!!!');
