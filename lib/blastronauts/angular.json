@@ -124,5 +124,8 @@
         }
       }
     }},
-  "defaultProject": "blastronauts"
+  "defaultProject": "blastronauts",
+  "cli": {
+    "analytics": false
+  }
 }
