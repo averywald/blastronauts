@@ -28,7 +28,8 @@ export class BlackHoleComponent implements OnInit {
    */
   ngOnInit(): void {
     // works in ngOnInit() without browser window focus?
-    addEventListener('keypress', this.matterService.handleInput);
+    addEventListener('keydown', this.matterService.registerInput);
+    addEventListener('keyup', this.matterService.releaseInput)
   }
 
 }

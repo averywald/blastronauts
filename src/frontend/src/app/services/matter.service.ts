@@ -1,14 +1,16 @@
 import { Injectable } from '@angular/core';
 import * as Matter from 'matter-js';
+import { Observable } from 'rxjs';
 import { IEntity } from '../models/entity.interface';
-import { Player } from '../models/player';
+import { Player } from '../models/player.model';
 
 /**
- * @todo get world from server
+ * @todo get world from server - inject a socket.io broadcast service
  * @todo should Matter.Engine be here, not singleton?
  * @todo implement deleteBody(entityId: <tbd>)
  * @todo implement ServiceWorker interface?
  * @todo world runoff should come out the other side
+ * @todo key input event handling should be using 'keydown', 'keyup'; smooth actions
  */
 @Injectable()
 export class MatterService {
@@ -16,12 +18,16 @@ export class MatterService {
   private engine: Matter.Engine;
   private renderer: Matter.Render;
   private clientEntity: Player;
+  private inputActive: Observable<boolean>;  
 
   /**
    * handle "this" scope binding for all EventListener callbacks
    */
   constructor() {
     this.handleInput = this.handleInput.bind(this);
+
+    // TODO : this.inputActive.subscribe()
+    // this should be used to latch/unlatch keyboard input / physics methods
   }
 
   /**
@@ -95,6 +101,19 @@ export class MatterService {
     bodies.forEach(body => Matter.Composite.add(this.engine.world, body.body));
   }
 
+  private rotate(angle: number): void {
+    // Matter.Body.rotate(this.clientEntity.body, angle);
+    let force = 0.0005;
+
+    let vector = {
+      x: Math.tan(this.clientEntity.body.angle) * force,
+      y: (1 / Math.tan(this.clientEntity.body.angle)) * force
+    };
+
+    Matter.Body.applyForce(
+      this.clientEntity.body, this.clientEntity.position, vector);
+  }
+
   private thrust(): void {
     let force = 0.0005;
 
@@ -107,6 +126,25 @@ export class MatterService {
       this.clientEntity.body, this.clientEntity.position, vector);
   }
 
+  private handleInput(event: KeyboardEvent): void {
+    switch (event.key) {
+      case 'w':
+        this.thrust();
+        break;
+      case 'a': // turn anti-clockwise
+        this.rotate(-90);
+        break;
+      // case 's': // reverse thrust???
+      //   this.rotate();
+      //   break;
+      case 'd': // turn clockwise
+        this.rotate(90);
+        break;
+      default:
+        break; // do nothing if not [WASD] || Spacebar
+    }
+  }
+
   /**
    * public wrapper that interfaces with component
    * to handle player body movment
@@ -116,24 +154,20 @@ export class MatterService {
    * 
    * @todo implement message return type for socket.io msg
    * @todo handle spacebar - shoot
+   * @todo key input handler observable to true
    */
-  handleInput(event: KeyboardEvent): void {
-    switch (event.key) {
-      case 'w':
-        this.thrust();
-        break;
-      case 'a': // turn anti-clockwise
-        console.log('a !!!!');
-        break;
-      case 's': // reverse thrust???
-        console.log('s !!!!');
-        break;
-      case 'd': // turn clockwise
-        console.log('d !!!!');
-        break;
-      default:
-        break; // do nothing if not [WASD] || Spacebar
-    }
+  registerInput(event: KeyboardEvent): void {
+    this.handleInput(event);
+  }
+
+  /**
+   * 'keyup' event handler
+   * 
+   * @param event key that was released
+   * 
+   * @todo set keyinput handler observable to false
+   */
+  releaseInput(event: KeyboardEvent): void {
   }
 
 }
